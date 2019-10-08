@@ -6,15 +6,26 @@ function renderCafe(doc) {
   let li = document.createElement('li');
   let name = document.createElement('span');
   let neighborhood = document.createElement('span');
+  let remove = document.createElement('div');
 
   li.setAttribute('data-id', doc.id);
   name.textContent = doc.data().name;
   neighborhood.textContent = doc.data().neighborhood;
+  remove.textContent = 'x';
 
   li.appendChild(name);
   li.appendChild(neighborhood);
+  li.appendChild(remove);
 
   cafeList.appendChild(li);
+
+  // Deleting data from Firestore
+  remove.addEventListener('click', evt => {
+    let id = doc.id;
+    db.collection('cafes')
+      .doc(id)
+      .delete();
+  });
 }
 
 // Fetching data from Firestore
