@@ -28,12 +28,35 @@ function renderCafe(doc) {
   });
 }
 
-// Fetching data from Firestore
+/********************************************************************
+//  Fetching data from Firestore with .get()
+//   - Specific queries: .where('neighborhood', '==', 'Nolita').get()
+//   - Ordering: .orderBy()
+//   - *** May be required to set an index in Firestore
+
 db.collection('cafes')
+  .orderBy('name')
   .get()
   .then(snapshot => {
     snapshot.docs.forEach(doc => {
       renderCafe(doc);
+    });
+  });
+
+********************************************************************/
+
+// Real-time databse listener
+db.collection('cafes')
+  .orderBy('neighborhood')
+  .onSnapshot(snapshot => {
+    let changes = snapshot.docChanges();
+    changes.forEach(change => {
+      if (change.type == 'added') {
+        renderCafe(change.doc);
+      } else if (change.type == 'removed') {
+        let li = cafeList.querySelector('[data-id=' + change.doc.id + ']');
+        cafeList.removeChild(li);
+      }
     });
   });
 
@@ -49,3 +72,14 @@ form.addEventListener('submit', evt => {
 
   form.reset();
 });
+
+/********************************************************************
+// Updating Data
+//   - .update()
+//   - .set() will override all document fields
+
+db.collection('cafes').doc('...').update({
+  name: 'Blue Bottle Cafe'
+});
+
+********************************************************************/
